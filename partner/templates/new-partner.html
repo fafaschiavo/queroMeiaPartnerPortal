@@ -1,0 +1,182 @@
+ <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+</head> 
+
+<strong>New Partner Form</strong>
+
+<form action="{% url 'include_new_partner' %}" id="new-member-form" method="post">
+	{% csrf_token %}
+
+	<br>
+	<label>Nome de usuário</label>
+	<input id="username" type="text" name="username" onchange="username_verify()">
+	<label id="username_error" style="display: none; color: red;">Nome de usuário não disponível</label>
+
+	<br>
+	<label>Senha</label>
+	<input id="password" type="password" name="password">
+	<label id="password_error" style="display: none; color: red;">A senha deve ter o mínimo 6 carácteres</label>
+
+	<br>
+	<label>Repita a senha</label>
+	<input id="password_again" type="password" name="password_again">
+	<label id="password_again_error" style="display: none; color: red;">As senhas são diferentes</label>
+
+	<br>
+	<label>Nome</label>
+	<input id="first_name" type="text" name="first_name">
+
+	<br>
+	<label>Sobrenome</label>
+	<input id="last_name" type="text" name="last_name">
+
+	<br>
+	<label>Email</label>
+	<input id="email" type="email" name="email" onchange="email_verify()">
+	<label id="email_error" style="display: none; color: red;">Email já cadastrado</label>
+
+	<br>
+	<label>Telefone</label>
+	<input id="phone" type="tel" name="phone" pattern=".{10,}">
+	<label id="phone_error" style="display: none; color: red;">Numero invalido</label>
+
+	<br>
+	<label>CEP</label>
+	<input id="zip_code" type="text" name="zip_code" pattern=".{6}">
+	<label id="zip_code_error" style="display: none; color: red;">CEP invalido</label>
+
+	<br>
+	<button type="submit" name="action" id="new-member-form-button">Enviar</button>
+</form>
+
+
+
+<script type="text/javascript">
+
+	var $jqDate = jQuery('input[name="birthdate"]');
+	var flag_birthday = false;
+	var flag_email = false;
+	var flag_username = false;
+	var flag_password = false;
+	var flag_password_again = false;
+	$("#new-member-form-button").prop('disabled', true);
+
+	$jqDate.bind('keyup','keydown', function(e){
+	    if(e.which !== 8) { 
+	        var numChars = $jqDate.val().length;
+	        if(numChars === 2 || numChars === 5){
+	            var thisVal = $jqDate.val();
+	            thisVal += '/';
+	            $jqDate.val(thisVal);
+	        }
+	  }
+	});
+
+	$("#telephone").on("change keyup paste", function () {
+	    var output;
+	    var ddd
+	    var phone
+	    var input = $("#telephone").val();
+	    if (input.length == 2 ) {
+	    	ddd = input.substr(0, 2);
+	    	ddd = '(' + ddd + ') ';
+	    	phone = input.substr(2);
+	    	output = ddd + phone;
+	    }else{
+	    	output = input;
+	    }
+	    
+	    $("#telephone").val(output);
+	});
+
+	$("#password").on("change keyup paste", function () {
+		var password_length = $("#password").val().length;
+		if (password_length < 6) {
+			flag_password = false;
+			$("#password_error").css("display","inline");
+		}else{
+			flag_password = true;
+			$("#password_error").css("display","none");
+		}
+		enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+	});
+
+	$("#password_again").on("change keyup paste", function () {
+		var password_again_length = $("#password_again").val().length;
+		var password_again = $("#password_again").val();
+		var password = $("#password").val();
+		if (password_again_length < 6) {
+			flag_password_again = false;
+			$("#password_again_error").css("display","inline");
+		}else{
+			flag_password_again = false;
+			$("#password_again_error").css("display","inline");
+			if (password == password_again) {
+				flag_password_again = true;
+				$("#password_again_error").css("display","none");
+			}
+		}
+		enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+	});
+
+	function username_verify(){
+		var username = $("#username").val();
+		
+	  	$.ajax({
+		    url: '{% url 'verify_username' %}',
+		    data: { 
+		        "username": username
+		    },
+		    type: 'get', // This is the default though, you don't actually need to always mention it
+		    success: function(data) {
+		        if (data == 200) {
+		        	flag_username = true;
+		        	$("#username_error").css("display","none");
+					enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+		        }else{
+		        	flag_username = false;
+		        	$("#username_error").css("display","inline");
+					enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+		        }
+		    },
+		    failure: function(data) { 
+		        flag_username = false;
+		    }
+		});
+	};
+
+	function email_verify(){
+		var email = $("#email").val();
+		
+	  	$.ajax({
+		    url: '{% url 'verify_email' %}',
+		    data: { 
+		        "email": email
+		    },
+		    type: 'get', // This is the default though, you don't actually need to always mention it
+		    success: function(data) {
+		        if (data == 200) {
+		        	flag_email = true;
+		        	$("#email_error").css("display","none");
+					enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+		        }else{
+		        	flag_email = false;
+		        	$("#email_error").css("display","inline");
+					enable_buttom(flag_username, flag_email, flag_password, flag_password_again);
+		        }
+		    },
+		    failure: function(data) { 
+		        flag_email = false;
+		    }
+		});
+	};
+
+	function enable_buttom(flag_username, flag_email, flag_password, flag_password_again){
+		if (flag_username == true && flag_email == true && flag_password == true && flag_password_again == true) {
+			$("#new-member-form-button").prop('disabled', false);
+		}else{
+			$("#new-member-form-button").prop('disabled', true);
+		}
+	}
+
+</script>
