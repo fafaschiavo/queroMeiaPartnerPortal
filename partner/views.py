@@ -47,10 +47,6 @@ def verify_email(request):
 
 def create_new_member(username, password, first_name, last_name, email, phone, zip_code):
 	hash_id = generate_member_hash_id()
-	# if phone == False:
-	# 	phone = ''
-	# if email == False:
-	# 	email = ''
 	new_member = responsable(first_name = first_name, last_name = last_name, email = email, phone = phone, hash_id = hash_id, username = username, zip_code = zip_code)
 	new_member.save()
 	user = User.objects.create_user(username = username, first_name = first_name, last_name = last_name, email = email, password = password)
@@ -76,5 +72,7 @@ def include_new_partner(request):
 	password = request.POST['password']
 	phone = request.POST['phone']
 	zip_code = request.POST['zip_code']
+	print request.POST['portal_name']
+	print request.POST['portal_type']
 	create_new_member(username, password, first_name, last_name, email, phone, zip_code)
 	return HttpResponse('Sucesso')

@@ -46,6 +46,18 @@
 	<label id="zip_code_error" style="display: none; color: red;">CEP invalido</label>
 
 	<br>
+	<label>Nome do Portal</label>
+	<input id="portal_name" type="text" name="portal_name">
+	<label id="portal_name_error" style="display: none; color: red;">Nome do portal</label>
+
+	<select id="portal_type" name="portal_type" form="new-member-form">
+	  <option value="blog">Blog</option>
+	  <option value="facebook">Página Facebook</option>
+	  <option value="twitter">Perfil Twitter</option>
+	  <option value="youtube">Canal Youtube</option>
+	</select>
+
+	<br>
 	<button type="submit" name="action" id="new-member-form-button">Enviar</button>
 </form>
 
