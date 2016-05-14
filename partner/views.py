@@ -18,13 +18,22 @@ import hmac, hashlib
 def hash_id_generator(size=10, chars=string.ascii_lowercase + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
 
-def generate_member_hash_id():
-
+def generate_responsable_hash_id():
 	verify_existence = True
 	while verify_existence == True:
 		new_hash_id = hash_id_generator()
 		try:
-			member = members.objects.all(hash_id = new_hash_id)
+			responsable = responsable.objects.all(hash_id = new_hash_id)
+		except:
+			verify_existence = False
+	return new_hash_id
+
+def generate_partner_hash_id():
+	verify_existence = True
+	while verify_existence == True:
+		new_hash_id = hash_id_generator()
+		try:
+			partner = partners.objects.all(hash_id = new_hash_id)
 		except:
 			verify_existence = False
 	return new_hash_id
@@ -45,13 +54,19 @@ def verify_email(request):
 	else:
 		return HttpResponse (200)
 
-def create_new_member(username, password, first_name, last_name, email, phone, zip_code):
-	hash_id = generate_member_hash_id()
-	new_member = responsable(first_name = first_name, last_name = last_name, email = email, phone = phone, hash_id = hash_id, username = username, zip_code = zip_code)
-	new_member.save()
+def create_new_responsable(username, password, first_name, last_name, email, phone, zip_code, partner_id):
+	hash_id = generate_responsable_hash_id()
+	new_responsable = responsable(first_name = first_name, last_name = last_name, email = email, phone = phone, hash_id = hash_id, username = username, zip_code = zip_code, partner_id = partner_id)
+	new_responsable.save()
 	user = User.objects.create_user(username = username, first_name = first_name, last_name = last_name, email = email, password = password)
 	user.save()
 	return 200
+
+def create_new_partner(portal_name, portal_type, share=10):
+	hash_id = generate_partner_hash_id()
+	new_partner = partners(portal_name = portal_name, portal_type = portal_type, share = share, hash_id = hash_id)
+	new_partner.save()
+	return new_partner
 
 # Create your views here.
 def index(request):
@@ -72,7 +87,10 @@ def include_new_partner(request):
 	password = request.POST['password']
 	phone = request.POST['phone']
 	zip_code = request.POST['zip_code']
+	portal_name = request.POST['portal_name']
+	portal_type = request.POST['portal_type']
 	print request.POST['portal_name']
 	print request.POST['portal_type']
-	create_new_member(username, password, first_name, last_name, email, phone, zip_code)
+	new_partner = create_new_partner(portal_name, portal_type)
+	create_new_responsable(username, password, first_name, last_name, email, phone, zip_code, new_partner.id)
 	return HttpResponse('Sucesso')
