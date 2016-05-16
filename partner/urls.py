@@ -12,4 +12,6 @@ urlpatterns = [
     url(r'^verify-username/', views.verify_username, name='verify_username'),
     url(r'^verify-email/', views.verify_email, name='verify_email'),
     url(r'^dashboard/', views.dashboard, name='dashboard'),
+    url(r'^contact-dashboard/', views.contact_dashboard, name='contact_dashboard'),
+    url(r'^banners/', views.banners, name='banners'),
 ]

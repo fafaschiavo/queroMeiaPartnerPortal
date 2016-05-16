@@ -1,0 +1,70 @@
+{% extends "dashboard-base.html" %}
+
+{% block style %}
+<style type="text/css">
+	
+.link-container{
+    box-shadow:0 1px 4px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.04);
+    background-color: rgba(255, 255, 255, 0.97);
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+.link-title{
+    text-align: center;
+    font-size: 170%;
+    font-weight: 300;
+}
+.link{
+    text-align: center;
+    font-size: 190%;
+    font-weight: 200;
+    width: 80%;
+    margin: auto;
+    padding: 10px;
+    background-color: rgba(218, 217, 216, 0.3);
+    border-radius: 12px;
+}
+.title-explanation{
+    font-size: 100%;
+    text-align: center;
+    width: 90%;
+    margin: auto;
+}
+.link-explanation{
+    font-size: 130%;
+    text-align: center;
+    font-weight: 800;
+    width: 90%;
+    margin: auto;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="mdl-grid demo-content">
+  <div class="mdl-cell mdl-cell--2-col"></div>
+  <div class="mdl-cell mdl-cell--8-col">
+      <div class="link-container">
+          <div class="link-title">
+              Precisa falar conosco?
+          </div>
+          <br>
+          <div class="title-explanation">
+              Entre em contato através do endereço de e-mail ou do telefone abaixo:
+          </div>
+          <br>
+          <div class="link-explanation">
+              atendimento@queromeia.com
+          </div>
+          <br>
+          <div class="link-explanation">
+              (11) 984-917-403
+          </div>
+      </div>
+  </div>
+  <div class="mdl-cell mdl-cell--2-col"></div>
+</div>
+
+{% endblock %}

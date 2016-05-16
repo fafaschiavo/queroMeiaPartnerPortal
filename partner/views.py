@@ -10,6 +10,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 import string
 import random
 import base64
@@ -136,8 +137,67 @@ def dashboard(request):
 	user = result[0]
 	name = user.first_name + ' ' + user.last_name
 	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+
+	partner_orders = orders.objects.filter(partner_hash_id = hash_id)
+	total_visits = len(partner_orders)/2
+	total_visits = int(total_visits)
+
+	partner_buys = orders.objects.filter(partner_hash_id = hash_id, status_paypal = 'Completed')
+	number_partner_buys = len(partner_buys)
+
+	cursor = connection.cursor()
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	cursor.execute(query)
+	total_amount = cursor.fetchone()
+	total_amount_sold = total_amount[0]
+	partner_share = partner.share
+	share_multiplier = float(partner_share) / 100
+	total_share_amount = float(total_amount_sold) * share_multiplier
+	total_share_amount = round(total_share_amount, 2)
+
 	context = {
 	'name': name,
-	'email': user.email
+	'email': user.email,
+	'partner_link': hash_id,
+	'total_visits': total_visits,
+	'number_partner_buys': number_partner_buys,
+	'total_share_amount': total_share_amount
 	}
 	return render(request, "dashboard.html", context)
+
+@login_required
+def contact_dashboard(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+	context = {
+	'name': name,
+	'email': user.email,
+	'partner_link': hash_id
+	}
+	return render(request, "contact-dashboard.html", context)
+
+@login_required
+def banners(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+	context = {
+	'name': name,
+	'email': user.email,
+	'partner_link': hash_id
+	}
+	return render(request, "banners-dashboard.html", context)
