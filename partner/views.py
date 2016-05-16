@@ -131,5 +131,13 @@ def logout_user(request):
 
 @login_required
 def dashboard(request):
-	context = {}
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	context = {
+	'name': name,
+	'email': user.email
+	}
 	return render(request, "dashboard.html", context)
