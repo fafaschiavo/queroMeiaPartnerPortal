@@ -2,12 +2,14 @@ from cinema.models import members, orders, products, tickets, bad_requests
 from partner.models import partners, responsable
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage
 from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 import string
 import random
 import base64
@@ -72,8 +74,11 @@ def create_new_partner(portal_name, portal_type, share=10):
 def index(request):
 	context = {}
 	q = members.objects.all()
-	print q
 	return render(request, "home.html", context)
+
+def contact(request):
+	context = {}
+	return render(request, "contact.html", context)
 
 def new_partner(request):
 	context = {}
@@ -89,8 +94,42 @@ def include_new_partner(request):
 	zip_code = request.POST['zip_code']
 	portal_name = request.POST['portal_name']
 	portal_type = request.POST['portal_type']
-	print request.POST['portal_name']
-	print request.POST['portal_type']
 	new_partner = create_new_partner(portal_name, portal_type)
 	create_new_responsable(username, password, first_name, last_name, email, phone, zip_code, new_partner.id)
-	return HttpResponse('Sucesso')
+	user = authenticate(username=username, password=password)
+	if user is not None:
+	    if user.is_active:
+	        login(request, user)
+	        return HttpResponseRedirect('/dashboard/')
+	    else:
+	        context = {'error_credentials': 1}
+	        return render(request, "new-partner.html", context)
+	else:
+	    context = {'error_credentials': 1}
+	    return render(request, "new-partner.html", context)
+
+def login_user(request):
+	context = {}
+	username = request.POST['username']
+	password = request.POST['password']
+	user = authenticate(username=username, password=password)
+	if user is not None:
+	    if user.is_active:
+	        login(request, user)
+	        return HttpResponseRedirect('/dashboard/')
+	    else:
+	        context = {'error_credentials': 1}
+	        return render(request, "home.html", context)
+	else:
+	    context = {'error_credentials': 1}
+	    return render(request, "home.html", context)
+
+def logout_user(request):
+	logout(request)
+	context = {}
+	return render(request, "home.html", context)
+
+@login_required
+def dashboard(request):
+	context = {}
+	return render(request, "dashboard.html", context)
