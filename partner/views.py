@@ -155,8 +155,11 @@ def dashboard(request):
 	total_amount_sold = total_amount[0]
 	partner_share = partner.share
 	share_multiplier = float(partner_share) / 100
-	total_share_amount = float(total_amount_sold) * share_multiplier
-	total_share_amount = round(total_share_amount, 2)
+	if total_amount_sold != None:
+		total_share_amount = float(total_amount_sold) * share_multiplier
+		total_share_amount = round(total_share_amount, 2)
+	else:
+		total_share_amount = 0
 
 	context = {
 	'name': name,
