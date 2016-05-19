@@ -1,0 +1,185 @@
+{% extends "dashboard-base.html" %}
+
+{% block style %}
+<style type="text/css">
+	
+.link-container{
+    box-shadow:0 1px 4px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.04);
+    background-color: rgba(255, 255, 255, 0.97);
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+.link-title{
+    text-align: center;
+    font-size: 170%;
+    font-weight: 300;
+}
+.link{
+    text-align: center;
+    font-size: 190%;
+    font-weight: 200;
+    width: 80%;
+    margin: auto;
+    padding: 10px;
+    background-color: rgba(218, 217, 216, 0.3);
+    border-radius: 12px;
+}
+.title-explanation{
+    font-size: 100%;
+    text-align: center;
+    width: 90%;
+    margin: auto;
+}
+.link-explanation{
+    font-size: 130%;
+    text-align: center;
+    font-weight: 800;
+    width: 90%;
+    margin: auto;
+}
+.mdl-textfield__label::after{
+  background-color: #eec92c;
+}
+.mdl-textfield--floating-label.is-focused .mdl-textfield__label{
+  color: #eec92c !important;
+}
+.mdl-textfield--floating-label.is-dirty .mdl-textfield__label{
+  color: #eec92c !important;
+}
+.mdl-button--raised.mdl-button--colored{
+  background: #eec92c;
+}
+.submit-button{
+  margin-top: 20px;
+  font-size: 22px;
+  height: initial;
+  padding: 18px;
+  padding-top: 5px;
+  padding-bottom: 4px;
+}
+.android-sub-slogan{
+  font-size: 18px;
+}
+a {
+    color: rgba(0,0,0,.7);
+    font-weight: 500;
+    text-decoration: none;
+}
+.android-fab{
+  background: #eec92c !important;
+}
+.android-wear-band{
+  background-color: rgba(0,0,0,0);
+}
+#password-change{
+  text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="mdl-grid demo-content">
+  <div class="mdl-cell mdl-cell--6-col">
+      <div class="link-container">
+          <br>
+          <div class="link-title">
+              Pagamento via PayPal?
+          </div>
+          <br>
+          <div class="title-explanation">
+              Digite seu email PayPal na conta abaixo.
+          </div>
+          <br>
+          <div class="title-explanation">
+              Os créditos serão enviados para sua conta Paypal em até 1 dia útil.
+          </div>
+          <br>
+
+          <form action="{% url 'password_update' %}" id="password-change" method="post">
+            {% csrf_token %}
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="email-paypal" type="text" name="email-paypal">
+              <label class="mdl-textfield__label">Email Paypal</label>
+            </div>
+
+            <label id="email-paypal-error" style="color: red;"><br>Você ainda não tem créditos suficientes</label>
+            <label id="email-paypal-error" style="color: red;"><br>(Valor mínimo R$10,00)</label>
+
+            <br>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored submit-button" type="submit" name="action" id="email-paypal-button">Confirmar</button>
+            <br><br>
+          </form>
+
+      </div>
+  </div>
+  <div class="mdl-cell mdl-cell--6-col">
+      <div class="link-container">
+          <br>
+          <div class="link-title">
+              Pagamento via Depósito Bancário
+          </div>
+          <br>
+          <div class="title-explanation">
+              Digite suas informações Bancárias nos campos abaixo:
+          </div>
+          <br>
+          <div class="title-explanation">
+              Os créditos serão enviados para sua conta Bancária em até 1 dia útil.
+          </div>
+          <br>
+
+          <form action="{% url 'password_update' %}" id="password-change" method="post">
+            {% csrf_token %}
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="name" type="text" name="name">
+              <label class="mdl-textfield__label">Nome Completo ou Razão Social</label>
+            </div>
+
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="cpf" type="text" name="cpf">
+              <label class="mdl-textfield__label">CPF ou CNPJ (apenas números)</label>
+            </div>
+
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="bank-agency" type="text" name="bank-agency">
+              <label class="mdl-textfield__label">Agência</label>
+            </div>
+
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="bank-agency" type="text" name="bank-agency">
+              <label class="mdl-textfield__label">Conta</label>
+            </div>
+
+            <br>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
+              <input class="mdl-textfield__input" id="bank-agency" type="text" name="bank-agency">
+              <label class="mdl-textfield__label">Banco</label>
+            </div>
+
+            <label id="email-paypal-error" style="color: red;"><br>Você ainda não tem créditos suficientes</label>
+            <label id="email-paypal-error" style="color: red;"><br>(Valor mínimo R$10,00)</label>
+
+            <br>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored submit-button" type="submit" name="action" id="bank-info-button">Confirmar</button>
+            <br><br>
+          </form>
+
+      </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block javascript %}
+	<script type="text/javascript">
+		$("#email-paypal-button").prop('disabled', true);
+		$("#bank-info-button").prop('disabled', true);
+	</script>
+{% endblock %}

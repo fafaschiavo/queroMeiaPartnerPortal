@@ -14,4 +14,7 @@ urlpatterns = [
     url(r'^dashboard/', views.dashboard, name='dashboard'),
     url(r'^contact-dashboard/', views.contact_dashboard, name='contact_dashboard'),
     url(r'^banners/', views.banners, name='banners'),
+    url(r'^password-change/', views.password_change, name='password_change'),
+    url(r'^password-update/', views.password_update, name='password_update'),
+    url(r'^require-payment/', views.require_payment, name='require_payment'),
 ]

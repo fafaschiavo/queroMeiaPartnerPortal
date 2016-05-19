@@ -204,3 +204,65 @@ def banners(request):
 	'partner_link': hash_id
 	}
 	return render(request, "banners-dashboard.html", context)
+
+@login_required
+def password_change(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+	context = {
+	'name': name,
+	'email': user.email,
+	'partner_link': hash_id
+	}
+	return render(request, "password-change.html", context)
+
+@login_required
+def password_update(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+
+	try:
+		password = request.POST['password']
+		u = User.objects.get(username= username)
+		u.set_password(password)
+		u.save()
+		success_password_reset = 1
+	except:
+		success_password_reset = 2
+
+	context = {
+	'name': name,
+	'email': user.email,
+	'partner_link': hash_id,
+	'success_password_reset': success_password_reset
+	}
+	return render(request, "password-change.html", context)
+
+@login_required
+def require_payment(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+	context = {
+	'name': name,
+	'email': user.email,
+	'partner_link': hash_id
+	}
+	return render(request, "require-payment.html", context)
