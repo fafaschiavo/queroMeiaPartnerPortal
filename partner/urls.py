@@ -17,4 +17,6 @@ urlpatterns = [
     url(r'^password-change/', views.password_change, name='password_change'),
     url(r'^password-update/', views.password_update, name='password_update'),
     url(r'^require-payment/', views.require_payment, name='require_payment'),
+    url(r'^payment-required/', views.payment_required, name='payment_required'),
+    url(r'^payment-required-paypal/', views.payment_required_paypal, name='payment_required_paypal'),
 ]

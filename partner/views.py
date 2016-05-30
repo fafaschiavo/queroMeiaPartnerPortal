@@ -71,6 +71,13 @@ def create_new_partner(portal_name, portal_type, share=10):
 	new_partner.save()
 	return new_partner
 
+def mandrill_send_payment_request(info):
+	msg = EmailMessage(subject="Requisicao de Pagamento de Parceiro", from_email="QueroMeia <atendimento@queromeia.com>", to=["atendimento@queromeia.com"])
+	msg.template_name = "payment-request"
+	msg.global_merge_vars = {'INFO': info}
+	msg.send()
+	return None
+
 # Create your views here.
 def index(request):
 	context = {}
@@ -260,9 +267,116 @@ def require_payment(request):
 	partner_result = partners.objects.filter(id = user.partner_id)
 	partner = partner_result[0]
 	hash_id = partner.hash_id
+
+	partner_orders = orders.objects.filter(partner_hash_id = hash_id)
+	total_visits = len(partner_orders)/2
+	total_visits = int(total_visits)
+
+	partner_buys = orders.objects.filter(partner_hash_id = hash_id, status_paypal = 'Completed')
+	number_partner_buys = len(partner_buys)
+
+	cursor = connection.cursor()
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	cursor.execute(query)
+	total_amount = cursor.fetchone()
+	total_amount_sold = total_amount[0]
+	partner_share = partner.share
+	share_multiplier = float(partner_share) / 100
+	if total_amount_sold != None:
+		total_share_amount = float(total_amount_sold) * share_multiplier
+		total_share_amount = round(total_share_amount, 2)
+	else:
+		total_share_amount = 0
+
+	minimun = 0
+	if total_share_amount >= 10:
+		minimun = 1
+
 	context = {
 	'name': name,
 	'email': user.email,
-	'partner_link': hash_id
+	'partner_link': hash_id,
+	'minimun': minimun
+	}
+	return render(request, "require-payment.html", context)
+
+def payment_required(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+
+	partner_orders = orders.objects.filter(partner_hash_id = hash_id)
+	total_visits = len(partner_orders)/2
+	total_visits = int(total_visits)
+
+	partner_buys = orders.objects.filter(partner_hash_id = hash_id, status_paypal = 'Completed')
+	number_partner_buys = len(partner_buys)
+
+	cursor = connection.cursor()
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	cursor.execute(query)
+	total_amount = cursor.fetchone()
+	total_amount_sold = total_amount[0]
+	partner_share = partner.share
+	share_multiplier = float(partner_share) / 100
+	if total_amount_sold != None:
+		total_share_amount = float(total_amount_sold) * share_multiplier
+		total_share_amount = round(total_share_amount, 2)
+	else:
+		total_share_amount = 0
+
+	name = request.POST['name']
+	cpf = request.POST['cpf']
+	agency = request.POST['bank-agency']
+	account = request.POST['bank-account']
+	bank = request.POST['bank']
+	info = 'Nome: ' + name + ' CPF: ' + cpf + ' Agencia: ' + agency + ' Conta: ' + account + ' Banco: ' + bank + ' Valor: ' + str(total_share_amount)   
+	mandrill_send_payment_request(info)
+	minimun = 2
+	context = {
+	'minimun': minimun
+	}
+	return render(request, "require-payment.html", context)
+
+def payment_required_paypal(request):
+	username = request.user
+	result = responsable.objects.filter(username = username)
+	user = result[0]
+	name = user.first_name + ' ' + user.last_name
+	name = name.title()
+	partner_result = partners.objects.filter(id = user.partner_id)
+	partner = partner_result[0]
+	hash_id = partner.hash_id
+
+	partner_orders = orders.objects.filter(partner_hash_id = hash_id)
+	total_visits = len(partner_orders)/2
+	total_visits = int(total_visits)
+
+	partner_buys = orders.objects.filter(partner_hash_id = hash_id, status_paypal = 'Completed')
+	number_partner_buys = len(partner_buys)
+
+	cursor = connection.cursor()
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	cursor.execute(query)
+	total_amount = cursor.fetchone()
+	total_amount_sold = total_amount[0]
+	partner_share = partner.share
+	share_multiplier = float(partner_share) / 100
+	if total_amount_sold != None:
+		total_share_amount = float(total_amount_sold) * share_multiplier
+		total_share_amount = round(total_share_amount, 2)
+	else:
+		total_share_amount = 0
+	email_paypal = request.POST['email-paypal']
+	info = 'Email PayPal: ' + email_paypal + ' Value: ' + str(total_share_amount)
+	mandrill_send_payment_request(info)
+	minimun = 2
+	context = {
+	'minimun': minimun
 	}
 	return render(request, "require-payment.html", context)

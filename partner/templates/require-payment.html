@@ -96,7 +96,7 @@ a {
           </div>
           <br>
 
-          <form action="{% url 'password_update' %}" id="password-change" method="post">
+          <form action="{% url 'payment_required_paypal' %}" id="password-change" method="post">
             {% csrf_token %}
             <br>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
@@ -104,9 +104,21 @@ a {
               <label class="mdl-textfield__label">Email Paypal</label>
             </div>
 
+            {% if minimun == 0 %}
             <label id="email-paypal-error" style="color: red;"><br>Você ainda não tem créditos suficientes</label>
             <label id="email-paypal-error" style="color: red;"><br>(Valor mínimo R$10,00)</label>
+            {% endif %}
 
+            {% if minimun == 1 %}
+            <label id="email-paypal-error" style="color: green;"><br>ATENÇÂO! As taxas de trasferência serão deduzidas do valor a ser creditado</label>
+            <label id="email-paypal-error" style="color: green;"><br>A trasferência será realizada no próximo dia útil</label>
+            {% endif %}
+
+            {% if minimun == 2 %}
+            <label id="email-paypal-error" style="color: green;"><br>Suas informações foram enviadas com sucesso!</label>
+            <label id="email-paypal-error" style="color: green;"><br>Dentro de um dia útil seus créditos serão transferidos.</label>
+            {% endif %}
+            
             <br>
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored submit-button" type="submit" name="action" id="email-paypal-button">Confirmar</button>
             <br><br>
@@ -130,7 +142,7 @@ a {
           </div>
           <br>
 
-          <form action="{% url 'password_update' %}" id="password-change" method="post">
+          <form action="{% url 'payment_required' %}" id="password-change" method="post">
             {% csrf_token %}
             <br>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
@@ -152,18 +164,30 @@ a {
 
             <br>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
-              <input class="mdl-textfield__input" id="bank-agency" type="text" name="bank-agency">
+              <input class="mdl-textfield__input" id="bank-account" type="text" name="bank-account">
               <label class="mdl-textfield__label">Conta</label>
             </div>
 
             <br>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 50%;">
-              <input class="mdl-textfield__input" id="bank-agency" type="text" name="bank-agency">
+              <input class="mdl-textfield__input" id="bank" type="text" name="bank">
               <label class="mdl-textfield__label">Banco</label>
             </div>
 
+            {% if minimun == 0 %}
             <label id="email-paypal-error" style="color: red;"><br>Você ainda não tem créditos suficientes</label>
             <label id="email-paypal-error" style="color: red;"><br>(Valor mínimo R$10,00)</label>
+            {% endif %}
+            
+            {% if minimun == 1 %}
+            <label id="email-paypal-error" style="color: green;"><br>ATENÇÂO! As taxas de trasferência serão deduzidas do valor a ser creditado</label>
+            <label id="email-paypal-error" style="color: green;"><br>A trasferência será realizada no próximo dia útil</label>
+            {% endif %}
+
+            {% if minimun == 2 %}
+            <label id="email-paypal-error" style="color: green;"><br>Suas informações foram enviadas com sucesso!</label>
+            <label id="email-paypal-error" style="color: green;"><br>Dentro de um dia útil seus créditos serão transferidos.</label>
+            {% endif %}
 
             <br>
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored submit-button" type="submit" name="action" id="bank-info-button">Confirmar</button>
@@ -179,7 +203,9 @@ a {
 
 {% block javascript %}
 	<script type="text/javascript">
-		$("#email-paypal-button").prop('disabled', true);
-		$("#bank-info-button").prop('disabled', true);
+    {% if minimun != 1 %}
+      $("#email-paypal-button").prop('disabled', true);
+      $("#bank-info-button").prop('disabled', true);
+    {% endif %}
 	</script>
 {% endblock %}

@@ -29,11 +29,17 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/'
 
+MANDRILL_API_KEY = "PQsvG3uAlMUoboU2fQoGHg"
+EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
+DEFAULT_FROM_EMAIL = 'atendimento@queromeia.com'
+MANDRILL_API_URL = "https://mandrillapp.com/api/1.0"
+
 # Application definition
 
 INSTALLED_APPS = [
     'partner.apps.PartnerConfig',
     'cinema.apps.CinemaConfig',
+    'djrill',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
