@@ -68,3 +68,49 @@ class responsable(models.Model):
 	def __email_activated__(self):
 		return self.email_activated
 
+class payment_request(models.Model):
+	partner_id = models.IntegerField(default=0)
+	amount = models.DecimalField(max_digits=7, decimal_places=2)
+	request_type = models.CharField(max_length=200)
+	created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
+	is_paid = models.IntegerField(default=0)
+	paid_at = models.DateTimeField(auto_now=True)
+	email_paypal = models.CharField(max_length=200, default = '')
+	name_owner = models.CharField(max_length=400, default = '')
+	cpf = models.CharField(max_length=200, default = '')
+	agency = models.CharField(max_length=200, default = '')
+	account = models.CharField(max_length=200, default = '')
+	bank = models.CharField(max_length=200, default = '')
+
+	def __partner_id__(self):
+		return self.partner_id
+
+	def __amount__(self):
+		return self.amount
+
+	def __request_type__(self):
+		return self.request_type
+
+	def __created_at__(self):
+		return self.created_at
+
+	def __is_paid__(self):
+		return self.is_paid
+
+	def __email_paypal__(self):
+		return self.email_paypal
+
+	def __name_owner__(self):
+		return self.name
+
+	def __cpf__(self):
+		return self.cpf
+
+	def __agency__(self):
+		return self.agency
+
+	def __account__(self):
+		return self.account
+
+	def __bank__(self):
+		return self.bank

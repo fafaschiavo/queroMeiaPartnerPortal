@@ -1,5 +1,5 @@
 from cinema.models import members, orders, products, tickets, bad_requests
-from partner.models import partners, responsable
+from partner.models import partners, responsable, payment_request
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -77,6 +77,15 @@ def mandrill_send_payment_request(info):
 	msg.global_merge_vars = {'INFO': info}
 	msg.send()
 	return None
+
+def add_payment_request(partner_id, amount, request_type, hash_id):
+	new_request = payment_request(partner_id = partner_id, amount = amount, request_type = request_type)
+	new_request.save()
+	partner_buys = orders.objects.filter(partner_hash_id = hash_id, status_paypal = 'Completed', payment_request_id = 0)
+	for order in partner_buys:
+		order.payment_request_id = new_request.id
+		order.save()
+	return new_request.id
 
 # Create your views here.
 def index(request):
@@ -156,7 +165,7 @@ def dashboard(request):
 	number_partner_buys = len(partner_buys)
 
 	cursor = connection.cursor()
-	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '" and payment_request_id = 0;'
 	cursor.execute(query)
 	total_amount = cursor.fetchone()
 	total_amount_sold = total_amount[0]
@@ -276,7 +285,7 @@ def require_payment(request):
 	number_partner_buys = len(partner_buys)
 
 	cursor = connection.cursor()
-	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '" and payment_request_id = 0;'
 	cursor.execute(query)
 	total_amount = cursor.fetchone()
 	total_amount_sold = total_amount[0]
@@ -318,7 +327,7 @@ def payment_required(request):
 	number_partner_buys = len(partner_buys)
 
 	cursor = connection.cursor()
-	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '" and payment_request_id = 0;'
 	cursor.execute(query)
 	total_amount = cursor.fetchone()
 	total_amount_sold = total_amount[0]
@@ -337,8 +346,18 @@ def payment_required(request):
 	bank = request.POST['bank']
 	info = 'Nome: ' + name + ' CPF: ' + cpf + ' Agencia: ' + agency + ' Conta: ' + account + ' Banco: ' + bank + ' Valor: ' + str(total_share_amount)   
 	mandrill_send_payment_request(info)
+	request_id = add_payment_request(user.partner_id, total_share_amount, 'banco', hash_id)
+	payment_request_object = payment_request.objects.get(id = request_id)
+	payment_request_object.name_owner = name
+	payment_request_object.cpf = cpf
+	payment_request_object.agency = agency
+	payment_request_object.account = account
+	payment_request_object.bank = bank
+	payment_request_object.save()
 	minimun = 2
 	context = {
+	'name': name,
+	'email': user.email,
 	'minimun': minimun
 	}
 	return render(request, "require-payment.html", context)
@@ -361,7 +380,7 @@ def payment_required_paypal(request):
 	number_partner_buys = len(partner_buys)
 
 	cursor = connection.cursor()
-	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '";'
+	query = 'select sum(amount) as total from cinema_orders where status_paypal = "Completed" and partner_hash_id = "' + hash_id + '" and payment_request_id = 0;'
 	cursor.execute(query)
 	total_amount = cursor.fetchone()
 	total_amount_sold = total_amount[0]
@@ -372,11 +391,18 @@ def payment_required_paypal(request):
 		total_share_amount = round(total_share_amount, 2)
 	else:
 		total_share_amount = 0
-	email_paypal = request.POST['email-paypal']
+	email_paypal = request.POST.get('email-paypal', 'Null')
 	info = 'Email PayPal: ' + email_paypal + ' Value: ' + str(total_share_amount)
-	mandrill_send_payment_request(info)
+	if total_share_amount != 0:
+		mandrill_send_payment_request(info)
+		request_id = add_payment_request(user.partner_id, total_share_amount, 'paypal', hash_id)
+		payment_request_object = payment_request.objects.get(id = request_id)
+		payment_request_object.email_paypal = email_paypal
+		payment_request_object.save()
 	minimun = 2
 	context = {
+	'name': name,
+	'email': user.email,
 	'minimun': minimun
 	}
 	return render(request, "require-payment.html", context)
